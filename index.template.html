@@ -1,0 +1,780 @@
+<!doctype html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>מוקד שפ״ע אריאל · תמונת מצב</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Heebo:wght@400;600;700&display=swap" rel="stylesheet">
+<!--VENDOR_CSS-->
+<style>
+:root{
+  --bg:#0c0f14; --panel:rgba(20,24,32,0.88); --panel-solid:#141820;
+  --ink:#eef2f7; --ink-dim:#aab4c2; --line:rgba(255,255,255,0.14);
+  --accent:#4aa3ff; --accent-ink:#0c0f14;
+  --g0:#1f8a4c; --g1:#7fae1f; --g2:#e0a21a; --g3:#e5731b; --g4:#d63a2f;
+  --font:"Assistant","Heebo","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;-webkit-text-size-adjust:100%}
+button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer}
+#map{position:fixed;inset:0;z-index:0;background:#11151c}
+.leaflet-container{direction:ltr;background:#11151c;font-family:var(--font)}
+.leaflet-control-attribution{background:rgba(12,15,20,.75)!important;color:#9fb0c2!important}
+.leaflet-control-attribution a{color:#bcd3ea!important}
+.leaflet-bar a{background:#1a1f29;color:#eef2f7;border-color:#000}
+.leaflet-bar a:hover{background:#2a3140}
+
+/* ---------- floating layers ---------- */
+.layer{position:fixed;z-index:20;background:var(--panel);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 30px rgba(0,0,0,.45)}
+.layer h2{margin:0 0 8px;font-size:15px;font-weight:800;letter-spacing:.2px}
+.muted{color:var(--ink-dim)}
+.tiny{font-size:12.5px;line-height:1.5}
+
+/* KPI bar */
+#kpis{top:12px;left:50%;transform:translateX(-50%);display:flex;gap:10px;padding:10px 12px;max-width:min(1180px,96vw)}
+#kpis .kpi{min-width:150px;text-align:center;padding:6px 12px;border-radius:10px;background:rgba(255,255,255,.04)}
+#kpis .kpi .v{font-size:32px;font-weight:800;line-height:1.05;letter-spacing:.5px}
+#kpis .kpi .l{font-size:12.5px;color:var(--ink-dim);margin-top:2px}
+#kpis .kpi .s{font-size:11px;color:var(--ink-dim)}
+
+/* layer switch */
+#layerctl{top:104px;right:12px;padding:8px}
+#layerctl .row{display:flex;gap:6px}
+#layerctl button{padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.04)}
+#layerctl button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+
+/* filters (left) */
+#filters{top:104px;left:12px;width:300px;max-height:calc(100vh - 150px);display:flex;flex-direction:column;padding:0}
+#filters .hd{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}
+#filters .bd{padding:12px 14px;overflow:auto}
+#filters.collapsed .bd{display:none}
+#filters .grp{margin-bottom:14px}
+#filters .grp>label{display:block;font-weight:700;font-size:13px;margin-bottom:6px}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{padding:5px 9px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:12.5px;user-select:none}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.presets button{margin:0 0 5px 5px;padding:5px 9px;border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:12px}
+.presets button.on{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.rng{display:flex;align-items:center;gap:8px;margin-top:6px}
+.rng input[type=range]{flex:1;accent-color:var(--accent)}
+.switch{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:13px}
+.switch input{width:16px;height:16px;accent-color:var(--accent)}
+#subSearch{width:100%;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--ink);margin-bottom:6px}
+#subList{max-height:150px;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px}
+.btn{padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.05)}
+.btn:hover{background:rgba(255,255,255,.12)}
+
+/* context (right) */
+#context{top:104px;right:12px;width:330px;max-height:calc(100vh - 150px);overflow:auto;padding:14px;display:none}
+#context.show{display:block}
+#context .close{float:left;border:none;background:transparent;font-size:20px;line-height:1;color:var(--ink-dim)}
+#context .metric{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+#context .bar{height:8px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:3px}
+#context .bar>i{display:block;height:100%;background:var(--accent)}
+.qual{font-size:12px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,.05);margin-top:8px}
+.warn{color:#ffcf6b}
+
+/* no-location card */
+#noloc{bottom:44px;left:12px;width:300px;padding:12px}
+#noloc .big{font-size:15px;font-weight:800}
+#noloc ul{margin:6px 0 0;padding-inline-start:18px}
+#noloc.min ul,#noloc.min .det{display:none}
+#noloc .t{cursor:pointer;color:var(--accent)}
+
+/* charts drawer */
+#charts{left:50%;transform:translateX(-50%);bottom:0;width:min(1200px,98vw);border-bottom-left-radius:0;border-bottom-right-radius:0;
+  padding:0;display:flex;flex-direction:column;max-height:56vh}
+#charts .hd{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--line)}
+#charts .bd{display:grid;grid-template-columns:1.15fr 1fr 1.15fr 1fr;gap:10px;padding:10px 12px;overflow:auto}
+#charts.collapsed{transform:translateX(-50%) translateY(calc(100% - 40px))}
+#charts .cell{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:10px;padding:6px 8px;min-height:180px}
+#charts .cell h3{margin:2px 0 4px;font-size:12.5px;font-weight:700;color:var(--ink-dim)}
+#charts canvas{width:100%!important;height:158px!important}
+@media (max-width:1180px){#charts .bd{grid-template-columns:1fr 1fr}}
+
+/* story */
+#storyBtn{position:fixed;bottom:44px;right:12px;padding:10px 16px;border-radius:12px;background:var(--accent);color:var(--accent-ink);border:none;font-weight:800;z-index:25}
+#story{left:50%;transform:translateX(-50%);bottom:52px;width:min(760px,94vw);padding:14px 18px;display:none;z-index:30}
+#story.show{display:block}
+#story .kx{display:flex;align-items:baseline;gap:10px}
+#story .kx .n{font-size:12px;color:var(--ink-dim);white-space:nowrap}
+#story h2{font-size:20px;margin:0}
+#story p{margin:6px 0 0;font-size:14px;line-height:1.55;color:#dfe7f0}
+#story .nav{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px}
+#story .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.25);border:none;padding:0}
+#story .dot.on{background:var(--accent);transform:scale(1.35)}
+#story .arrow{border:1px solid var(--line);background:rgba(255,255,255,.05);border-radius:8px;padding:4px 12px;font-size:16px}
+#story .exit{position:absolute;top:8px;left:10px;border:none;background:transparent;color:var(--ink-dim);font-size:18px}
+#backToStory{position:fixed;left:50%;transform:translateX(-50%);bottom:12px;z-index:31;display:none;
+  padding:8px 16px;border-radius:10px;background:#ffcf6b;color:#241c00;border:none;font-weight:800}
+#backToStory.show{display:block}
+.fade{transition:opacity .35s ease}
+.dim{opacity:.12;pointer-events:none}
+
+/* legend */
+#legend{bottom:120px;left:12px;padding:10px 12px;font-size:12px;display:none}
+#legend.show{display:block}
+#legend .scale{height:10px;width:180px;border-radius:5px;margin:6px 0 3px;
+  background:linear-gradient(90deg,var(--g0),var(--g1),var(--g2),var(--g3),var(--g4))}
+#legend .ax{display:flex;justify-content:space-between;width:180px;color:var(--ink-dim)}
+
+/* offline badge + footer */
+#offline{top:12px;right:12px;display:none;padding:8px 12px;background:#3a2a00;border:1px solid #6b5200;color:#ffcf6b;font-weight:700;font-size:12.5px}
+#offline.show{display:block}
+#credit{position:fixed;left:0;right:0;bottom:0;z-index:15;text-align:center;font-size:10.5px;color:#8ea0b4;
+  background:linear-gradient(0deg,rgba(12,15,20,.9),rgba(12,15,20,0));padding:4px 8px;pointer-events:none}
+#credit a{color:#b9d2ea}
+
+.leaflet-tooltip.bub{background:var(--panel-solid);border:1px solid var(--line);color:var(--ink);font-family:var(--font)}
+.pop b{color:var(--accent)}
+.pop{font-family:var(--font);font-size:12.5px;line-height:1.6}
+
+/* responsive: panels -> drawers under 1280 */
+@media (max-width:1279px){
+  #kpis{flex-wrap:wrap;justify-content:center;gap:6px}
+  #kpis .kpi{min-width:31%}
+  #kpis .kpi .v{font-size:24px}
+  #filters,#context{top:auto;bottom:0;left:0;right:0;width:100%;max-height:64vh;border-radius:16px 16px 0 0;transform:translateY(0)}
+  #filters{display:none}#filters.open{display:flex}
+  #context{width:100%}
+  #noloc,#legend{display:none!important}
+  #openFilters{display:block}
+}
+#openFilters{display:none;position:fixed;bottom:44px;left:12px;z-index:25;padding:10px 14px;border-radius:12px;background:var(--panel-solid);border:1px solid var(--line);font-weight:700}
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<div id="kpis" class="layer"></div>
+
+<div id="offline" class="layer">מצב לא־מקוון · מפת מתאר בלבד</div>
+
+<div id="layerctl" class="layer">
+  <div class="row">
+    <button data-layer="bubbles" class="on">בועות לפי רחוב</button>
+    <button data-layer="heat">מפת חום</button>
+    <button data-layer="clusters">אשכולות</button>
+  </div>
+</div>
+
+<div id="filters" class="layer">
+  <div class="hd"><h2>סינון</h2><button class="btn" id="filtToggle">הסתר</button></div>
+  <div class="bd">
+    <div class="grp">
+      <label>טווח תאריכים</label>
+      <div class="presets" id="presets">
+        <button data-p="all" class="on">כל התקופה</button><button data-p="2025">2025</button><button data-p="2026">2026</button><button data-p="12m">12 ח' אחרונים</button><button data-p="q">רבעון אחרון</button>
+      </div>
+      <div class="rng"><span id="rngFrom" class="tiny muted"></span><input type="range" id="mLo" min="0" value="0"><input type="range" id="mHi" min="0"><span id="rngTo" class="tiny muted"></span></div>
+    </div>
+    <div class="grp"><label>מחלקה</label><div class="chips" id="depChips"></div></div>
+    <div class="grp"><label>קבוצת סטטוס</label><div class="chips" id="grpChips"></div></div>
+    <div class="grp">
+      <label>נושא משנה</label>
+      <input id="subSearch" placeholder="חיפוש נושא…">
+      <div id="subList"></div>
+    </div>
+    <div class="grp">
+      <div class="switch"><input type="checkbox" id="fBreach"><label for="fBreach">הצג רק חריגות SLA</label></div>
+      <div class="switch"><input type="checkbox" id="fOpen"><label for="fOpen">הצג רק פניות פתוחות</label></div>
+      <div class="switch"><input type="checkbox" id="fMerge"><label for="fMerge">אחד פניות המשך לפנייה אחת</label></div>
+    </div>
+    <button class="btn" id="resetFilters">איפוס סינון</button>
+  </div>
+</div>
+
+<button id="openFilters">☰ סינון</button>
+
+<div id="context" class="layer"></div>
+
+<div id="noloc" class="layer">
+  <div class="big" id="nolocHead"></div>
+  <div class="t" id="nolocToggle">פירוט ▾</div>
+  <div class="det">
+    <div class="tiny muted" style="margin-top:6px">רחוב מוכר, אין מיקום ב־OSM:</div>
+    <ul id="nolocUnloc" class="tiny"></ul>
+    <div class="tiny muted">ללא רחוב תקין:</div>
+    <ul id="nolocNo" class="tiny"></ul>
+    <div class="tiny muted">הפניות האלה נכללות בכל הספירות והגרפים.</div>
+  </div>
+</div>
+
+<div id="legend" class="layer">
+  <div>שיעור חריגת SLA ברחוב</div>
+  <div class="scale"></div>
+  <div class="ax"><span>0%</span><span>25%</span><span>50%+</span></div>
+  <div class="tiny muted" style="margin-top:6px">גודל בועה ∝ מספר פניות · קו מקווקו = מיקום משוער</div>
+</div>
+
+<div id="charts" class="layer collapsed">
+  <div class="hd"><h2>גרפים</h2><button class="btn" id="chartsToggle">הצג ▴</button></div>
+  <div class="bd">
+    <div class="cell"><h3>פניות לפי חודש</h3><canvas id="cMonth"></canvas></div>
+    <div class="cell"><h3>לפי מחלקה</h3><canvas id="cDep"></canvas></div>
+    <div class="cell"><h3>לפי נושא (15 מובילים)</h3><canvas id="cSub"></canvas></div>
+    <div class="cell"><h3>התפלגות זמן טיפול (ציר Y לוגריתמי)</h3><canvas id="cHist"></canvas></div>
+  </div>
+</div>
+
+<button id="storyBtn">▶ מצב סיפור</button>
+<div id="story" class="layer">
+  <button class="exit" id="storyExit">✕</button>
+  <div class="kx"><span class="n" id="storyN">1/7</span><h2 id="storyTitle"></h2></div>
+  <p id="storyText"></p>
+  <div class="nav">
+    <button class="arrow" id="storyPrev">→</button>
+    <span id="storyDots"></span>
+    <button class="arrow" id="storyNext">←</button>
+  </div>
+</div>
+<button id="backToStory">↩ חזרה לסיפור</button>
+
+<div id="credit">
+  רקע מפה © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors ·
+  גיאומטריית גבול ורחובות: OpenStreetMap, ODbL — relation 10011903 (admin_level=8), תיבה 32.086,35.145–32.130,35.225 ·
+  קואורדינטות רחוב = צנטרואיד מקטעי OSM, לא כתובת מדויקת
+</div>
+
+<!--VENDOR_JS-->
+<!--SITE_DATA-->
+<script>
+(function(){
+"use strict";
+var D = window.SITE_DATA;
+var TK = D.tickets, IDS = D.ids, M = D.months, GEO = D.geo, SLA = D.sla.map, AGG = D.aggregates;
+var DEPS = D.dims.deps, SUBS = D.dims.subjects, STREETS = D.dims.streets, SGRP = D.dims.statusGroups, SRAW = D.dims.statusesRaw;
+var F = D.flagBits; // {METRIC:1,BREACH:2,CLOSE:4,DUE:8,LATE:16,FOLLOWUP:32}
+// ticket row: [streetIdx, depIdx, subIdx, grpIdx, monthIdx, openDay, treatH, flags, statusRawIdx]
+var C_ST=0,C_DEP=1,C_SUB=2,C_GRP=3,C_MI=4,C_DAY=5,C_TR=6,C_FL=7,C_SR=8,C_IX=9;
+for(var _i=0;_i<TK.length;_i++) TK[_i][C_IX]=_i;
+var EPOCH = Date.UTC(2025,0,1);
+function dayToDate(d){ return new Date(EPOCH + d*86400000); }
+function fmtDate(d){ var x=dayToDate(d); return String(x.getUTCDate()).padStart(2,'0')+'/'+String(x.getUTCMonth()+1).padStart(2,'0')+'/'+x.getUTCFullYear(); }
+function has(t,fl){ return (t[C_FL]&fl)!==0; }
+
+// ---------------- state ----------------
+var st = {
+  mLo:0, mHi:M.length-1, preset:'all',
+  deps:new Set(), grps:new Set(), subs:new Set(),
+  breach:false, open:false, merge:false,
+  street:null,
+  layer:'bubbles',
+  story:{on:false, i:0, broke:false}
+};
+
+// ---------------- map ----------------
+var map = L.map('map',{zoomControl:true, attributionControl:true})
+  .setView(D.meta.view.center, D.meta.view.zoom);
+var bubbleRenderer = L.svg({padding:0.5});
+L.control.attribution({prefix:false}).addTo(map);
+
+var tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  maxZoom:19, crossOrigin:true, attribution:'© OpenStreetMap contributors'
+});
+var boundary = L.geoJSON(D.geo.boundary,{style:{color:'#5b6b7f',weight:1.2,opacity:.5,fill:false}});
+var boundaryOffline = L.geoJSON(D.geo.boundary,{style:{color:'#9fc0e6',weight:2,opacity:.9,fill:true,fillColor:'#1b2330',fillOpacity:.35}});
+boundary.addTo(map);
+
+// offline detection
+var tileOK=false, tileErr=0, offline=false;
+tiles.on('load',function(){ tileOK=true; });
+tiles.on('tileerror',function(){ tileErr++; if(tileErr>=8 && !tileOK) goOffline(); });
+tiles.addTo(map);
+setTimeout(function(){ if(!tileOK) goOffline(); }, 6000);
+function goOffline(){
+  if(offline) return; offline=true;
+  try{ map.removeLayer(tiles); }catch(e){}
+  map.removeLayer(boundary); boundaryOffline.addTo(map);
+  document.getElementById('map').style.background='#11151c';
+  document.getElementById('offline').classList.add('show');
+  try{ map.fitBounds(boundaryOffline.getBounds().pad(0.05)); }catch(e){}
+}
+
+// ---------------- filtering ----------------
+function pass(t){
+  if(st.merge && has(t,F.FOLLOWUP)) return false;
+  var mi=t[C_MI];
+  if(mi<0){ if(st.mLo>0||st.mHi<M.length-1) return false; }
+  else if(mi<st.mLo || mi>st.mHi) return false;
+  if(st.deps.size && !st.deps.has(t[C_DEP])) return false;
+  if(st.grps.size && !st.grps.has(t[C_GRP])) return false;
+  if(st.subs.size && !st.subs.has(t[C_SUB])) return false;
+  if(st.breach && !has(t,F.BREACH)) return false;
+  if(st.open && has(t,F.CLOSE)) return false;
+  if(st.street!=null && (t[C_ST]<0 || STREETS[t[C_ST]]!==st.street)) return false;
+  return true;
+}
+function filtered(){ var a=[]; for(var i=0;i<TK.length;i++) if(pass(TK[i])) a.push(TK[i]); return a; }
+
+function median(arr){ if(!arr.length) return null; var s=arr.slice().sort(function(a,b){return a-b}); var i=(s.length-1)/2; return (s[Math.floor(i)]+s[Math.ceil(i)])/2; }
+function fmtDur(h){ if(h==null) return '—'; if(h<48) return (Math.round(h*10)/10)+' שע׳'; return (Math.round(h/24*10)/10)+' ימ׳'; }
+
+// ---------------- KPIs ----------------
+function renderKPIs(rows){
+  var n=rows.length, done=0, br=0, opn=0, withMetric=0, tr=[];
+  for(var i=0;i<rows.length;i++){ var t=rows[i];
+    if(t[C_GRP]===0) done++;
+    if(has(t,F.BREACH)) br++;
+    if(has(t,F.METRIC)) withMetric++;
+    if(!has(t,F.CLOSE)) opn++;
+    if(t[C_TR]>=0) tr.push(t[C_TR]);
+  }
+  var med=median(tr);
+  var brPctAll = n? (100*br/n):0;
+  var brPctMetric = withMetric? (100*br/withMetric):0;
+  var K=[
+    ['סה״כ פניות', n.toLocaleString('he-IL'), ''],
+    ['% טופל', n? (Math.round(100*done/n))+'%':'—', done.toLocaleString('he-IL')+' פניות'],
+    ['% חריגת SLA', n? (Math.round(brPctAll*10)/10)+'%':'—', br.toLocaleString('he-IL')+' חריגות · '+(Math.round(brPctMetric*10)/10)+'% מבעלות יעד'],
+    ['זמן טיפול חציוני', med==null?'—':fmtDur(med), tr.length.toLocaleString('he-IL')+' פניות סגורות'],
+    ['פניות פתוחות', opn.toLocaleString('he-IL'), 'ללא תאריך סגירה']
+  ];
+  document.getElementById('kpis').innerHTML = K.map(function(k){
+    return '<div class="kpi"><div class="v">'+k[1]+'</div><div class="l">'+k[0]+'</div><div class="s">'+k[2]+'</div></div>';
+  }).join('');
+}
+
+// ---------------- colour scale ----------------
+var STOPS=[[0,'#1f8a4c'],[.15,'#7fae1f'],[.30,'#e0a21a'],[.50,'#e5731b'],[.75,'#d63a2f']];
+function lerp(a,b,f){return a+(b-a)*f;}
+function hex2rgb(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+function rateColor(r){
+  if(r<=0) return STOPS[0][1];
+  for(var i=1;i<STOPS.length;i++){ if(r<=STOPS[i][0]||i===STOPS.length-1){
+    var a=STOPS[i-1],b=STOPS[i]; var f=(r-a[0])/(b[0]-a[0]); f=Math.max(0,Math.min(1,f));
+    var ca=hex2rgb(a[1]),cb=hex2rgb(b[1]);
+    return 'rgb('+Math.round(lerp(ca[0],cb[0],f))+','+Math.round(lerp(ca[1],cb[1],f))+','+Math.round(lerp(ca[2],cb[2],f))+')';
+  }}
+  return STOPS[STOPS.length-1][1];
+}
+
+// ---------------- map layers ----------------
+var bubbleLayer=L.layerGroup(), heatLayer=null, clusterLayer=null;
+function jitter(i){ var a=Math.sin(i*12.9898)*43758.5453; var b=Math.sin(i*78.233)*137.13; a-=Math.floor(a); b-=Math.floor(b); return [(a-0.5)*0.0011,(b-0.5)*0.0013]; }
+
+function clearMapLayers(){
+  bubbleLayer.remove();
+  if(heatLayer){ map.removeLayer(heatLayer); heatLayer=null; }
+  if(clusterLayer){ map.removeLayer(clusterLayer); clusterLayer=null; }
+}
+var mapPending=false;
+function renderMap(rows){
+  clearMapLayers();
+  document.getElementById('legend').classList.toggle('show', st.layer==='bubbles' && !st.story.on);
+  // leaflet.heat / canvas ops throw on a zero-size map (hidden pane, collapsed drawer). defer.
+  try{ map.invalidateSize({animate:false}); }catch(e){}
+  if(!map.getSize || map.getSize().x<10 || map.getSize().y<10){
+    if(!mapPending){ mapPending=true; setTimeout(function(){ mapPending=false; renderMap(filtered()); },400); }
+    return;
+  }
+  try{
+    if(st.layer==='bubbles') renderBubbles(rows);
+    else if(st.layer==='heat') renderHeat(rows);
+    else renderClusters(rows);
+  }catch(e){ console.warn('renderMap skipped:', e && e.message); }
+}
+function aggByStreet(rows){
+  var m={};
+  for(var i=0;i<rows.length;i++){ var t=rows[i]; if(t[C_ST]<0) continue;
+    var nm=STREETS[t[C_ST]]; var g=GEO.streets[nm]; if(!g) continue;
+    var o=m[nm]||(m[nm]={n:0,b:0,g:g}); o.n++; if(has(t,F.BREACH)) o.b++;
+  }
+  return m;
+}
+function renderBubbles(rows){
+  bubbleLayer=L.layerGroup(); var m=aggByStreet(rows); var max=1;
+  for(var k in m) if(m[k].n>max) max=m[k].n;
+  Object.keys(m).forEach(function(nm){
+    var o=m[nm], rate=o.b/o.n;
+    var rad=5+18*Math.sqrt(o.n/max);
+    var mk=L.circleMarker([o.g.lat,o.g.lon],{
+      radius:rad, color:o.g.approx?'#cbd6e2':'#0a0d12', weight:o.g.approx?1.4:1,
+      dashArray:o.g.approx?'3 3':null, fillColor:rateColor(rate), fillOpacity:.82, renderer:bubbleRenderer
+    });
+    mk.bindTooltip(nm+' · '+o.n+' פניות · '+Math.round(rate*100)+'% חריגה'+(o.g.approx?'<br><span style="color:#cbd6e2">מיקום משוער · '+o.g.src+'</span>':''),{className:'bub',direction:'top'});
+    mk.on('click',function(){ selectStreet(nm); });
+    bubbleLayer.addLayer(mk);
+  });
+  bubbleLayer.addTo(map);
+}
+function pointsOf(rows){
+  var p=[];
+  for(var i=0;i<rows.length;i++){ var t=rows[i]; if(t[C_ST]<0) continue;
+    var g=GEO.streets[STREETS[t[C_ST]]]; if(!g) continue;
+    var j=jitter(t[C_IX]);
+    p.push([g.lat+j[0], g.lon+j[1], t]);
+  }
+  return p;
+}
+function renderHeat(rows){
+  var pts=pointsOf(rows).map(function(a){return [a[0],a[1],0.7];});
+  heatLayer=L.heatLayer(pts,{radius:22,blur:16,maxZoom:17,minOpacity:.25,
+    gradient:{0.2:'#2b6cb0',0.4:'#38a169',0.6:'#e0a21a',0.8:'#e5731b',1:'#d63a2f'}});
+  heatLayer.addTo(map);
+}
+function popupHTML(t,id){
+  var sla=SLA[DEPS[t[C_DEP]]+'|'+SUBS[t[C_SUB]]];
+  var slaTxt = !sla ? 'לא מוגדר' : (sla.broken?'<span class="warn">⚠ הגדרה חסרה</span>' : sla.workdays+' ימי עבודה');
+  var when = t[C_DAY]>=0? fmtDate(t[C_DAY]):'—';
+  var dur = has(t,F.CLOSE)? ('טופל תוך '+fmtDur(t[C_TR])) : ('פתוח '+(t[C_DAY]>=0? Math.round((Date.now()-dayToDate(t[C_DAY]))/86400000)+' ימים':'—'));
+  return '<div class="pop"><b>פנייה '+id+'</b><br>'+DEPS[t[C_DEP]]+' · '+SUBS[t[C_SUB]]+'<br>'+
+    'סטטוס: '+SRAW[t[C_SR]]+'<br>נפתחה: '+when+'<br>'+dur+'<br>יעד SLA: '+slaTxt+
+    (has(t,F.BREACH)?'<br><span class="warn">חריגת SLA</span>':'')+'</div>';
+}
+function renderClusters(rows){
+  clusterLayer=L.markerClusterGroup({chunkedLoading:true,maxClusterRadius:48,spiderfyOnMaxZoom:true});
+  var pts=pointsOf(rows);
+  var batch=[];
+  for(var i=0;i<pts.length;i++){
+    var a=pts[i], t=a[2];
+    var mk=L.circleMarker([a[0],a[1]],{radius:4,color:'#0a0d12',weight:.6,fillColor:has(t,F.BREACH)?'#d63a2f':'#4aa3ff',fillOpacity:.9});
+    mk.bindPopup(popupHTML(t, IDS[t[C_IX]]!=null?IDS[t[C_IX]]:'—'));
+    batch.push(mk);
+  }
+  clusterLayer.addLayers(batch);
+  clusterLayer.addTo(map);
+}
+
+// ---------------- context panel ----------------
+function selectStreet(nm){
+  st.street = (st.street===nm? null : nm);
+  if(st.story.on) breakOut();
+  refresh();
+}
+function renderContext(rows){
+  var el=document.getElementById('context');
+  if(st.street==null){ el.classList.remove('show'); return; }
+  el.classList.add('show');
+  var nm=st.street, g=GEO.streets[nm];
+  // stats for this street across CURRENT date/other filters but ignoring the street filter itself:
+  var sSet=[], cityTr=[], cityBr=0, cityN=0;
+  var savedStreet=st.street; st.street=null;
+  var base=filtered(); st.street=savedStreet;
+  for(var i=0;i<base.length;i++){ var t=base[i];
+    cityN++; if(has(t,F.BREACH)) cityBr++; if(t[C_TR]>=0) cityTr.push(t[C_TR]);
+    if(t[C_ST]>=0 && STREETS[t[C_ST]]===nm) sSet.push(t);
+  }
+  var n=sSet.length, br=0, tr=[], byDep={}, bySub={};
+  for(var j=0;j<n;j++){ var s=sSet[j];
+    if(has(s,F.BREACH)) br++; if(s[C_TR]>=0) tr.push(s[C_TR]);
+    byDep[DEPS[s[C_DEP]]]=(byDep[DEPS[s[C_DEP]]]||0)+1;
+    bySub[SUBS[s[C_SUB]]]=(bySub[SUBS[s[C_SUB]]]||0)+1;
+  }
+  // rank by total among located streets
+  var m=aggByStreet(base); var arr=Object.keys(m).map(function(k){return [k,m[k].n];}).sort(function(a,b){return b[1]-a[1];});
+  var rank=arr.findIndex(function(x){return x[0]===nm;})+1;
+  var medS=median(tr), medC=median(cityTr);
+  var rateS=n?br/n:0, rateC=cityN?cityBr/cityN:0;
+  var depRows=Object.keys(byDep).sort(function(a,b){return byDep[b]-byDep[a];}).map(function(d){
+    return '<div class="metric"><span>'+d+'</span><span>'+byDep[d]+'</span></div><div class="bar"><i style="width:'+(100*byDep[d]/n)+'%"></i></div>';
+  }).join('');
+  var subRows=Object.keys(bySub).sort(function(a,b){return bySub[b]-bySub[a];}).slice(0,5).map(function(s){
+    return '<div class="metric"><span>'+s+'</span><span>'+bySub[s]+'</span></div>';
+  }).join('');
+  var qual = !g ? '<div class="qual warn">אין קואורדינטה — רחוב זה לא מוצג על המפה</div>' :
+    '<div class="qual">איכות מיקום: <b>'+g.conf+'</b>'+(g.approx?' · מיקום משוער':'')+'<br>'+g.src+
+    (g.hood?'<br>שכונה: '+g.hood:'')+'</div>';
+  el.innerHTML =
+    '<button class="close" id="ctxClose">✕</button>'+
+    '<h2>'+nm+'</h2>'+
+    '<div class="tiny muted">'+(rank>0?'דירוג '+rank+' מבין '+arr.length+' רחובות ממופים':'')+'</div>'+
+    '<div class="metric"><span>סה״כ פניות (בסינון)</span><span><b>'+n+'</b></span></div>'+
+    '<div class="metric"><span>חריגת SLA</span><span>'+Math.round(rateS*100)+'% <span class="muted">(עירוני '+Math.round(rateC*100)+'%)</span></span></div>'+
+    '<div class="metric"><span>זמן טיפול חציוני</span><span>'+fmtDur(medS)+' <span class="muted">(עירוני '+fmtDur(medC)+')</span></span></div>'+
+    '<h2 style="margin-top:12px;font-size:13px">פילוח לפי מחלקה</h2>'+depRows+
+    '<h2 style="margin-top:12px;font-size:13px">5 נושאים מובילים</h2>'+subRows+
+    qual;
+  document.getElementById('ctxClose').onclick=function(){ st.street=null; if(st.story.on) breakOut(); refresh(); };
+}
+
+// ---------------- charts ----------------
+var charts={};
+var chartFont={family:getComputedStyle(document.body).fontFamily};
+Chart.defaults.color='#aab4c2'; Chart.defaults.font.family=chartFont.family; Chart.defaults.font.size=11;
+Chart.defaults.plugins.legend.display=false;
+var HIST_EDGES=[0,1,3,6,12,24,48,96,168,336,720,2160,1e9];
+var HIST_LABELS=['<1 שע׳','1–3 שע׳','3–6 שע׳','6–12 שע׳','12–24 שע׳','1–2 ימ׳','2–4 ימ׳','4–7 ימ׳','1–2 שב׳','2–4 שב׳','1–3 חו׳','3 חו׳+'];
+function buildCharts(){
+  charts.month=new Chart(document.getElementById('cMonth'),{type:'bar',
+    data:{labels:M.map(function(x){return x.label;}),datasets:[{data:[],backgroundColor:'#4aa3ff'}]},
+    options:{maintainAspectRatio:false,onClick:function(e,els){ if(els.length){ toggleMonth(els[0].index); }},
+      scales:{x:{ticks:{maxRotation:90,minRotation:60,autoSkip:false,font:{size:9}}},y:{beginAtZero:true}}}});
+  charts.dep=new Chart(document.getElementById('cDep'),{type:'bar',
+    data:{labels:DEPS.slice(),datasets:[{data:[],backgroundColor:'#38a169'}]},
+    options:{maintainAspectRatio:false,indexAxis:'y',onClick:function(e,els){ if(els.length){ toggleSet(st.deps,els[0].index); }},
+      scales:{x:{beginAtZero:true}}}});
+  charts.sub=new Chart(document.getElementById('cSub'),{type:'bar',
+    data:{labels:[],datasets:[{data:[],backgroundColor:'#e0a21a'}]},
+    options:{maintainAspectRatio:false,indexAxis:'y',onClick:function(e,els){ if(els.length){ var name=charts.sub.data.labels[els[0].index]; toggleSet(st.subs, SUBS.indexOf(name)); }},
+      scales:{x:{beginAtZero:true}}}});
+  charts.hist=new Chart(document.getElementById('cHist'),{type:'bar',
+    data:{labels:HIST_LABELS,datasets:[{data:[],backgroundColor:'#e5731b'}]},
+    options:{maintainAspectRatio:false,scales:{x:{ticks:{font:{size:9},maxRotation:60,minRotation:45}},
+      y:{type:'logarithmic',min:0.5,ticks:{callback:function(v){ return [1,10,100,1000,10000].indexOf(v)>=0? v : ''; }}}}}});
+}
+function renderCharts(rows){
+  var mc=new Array(M.length).fill(0), dc=new Array(DEPS.length).fill(0), sc={}, hc=new Array(HIST_LABELS.length).fill(0);
+  for(var i=0;i<rows.length;i++){ var t=rows[i];
+    if(t[C_MI]>=0) mc[t[C_MI]]++;
+    dc[t[C_DEP]]++;
+    sc[t[C_SUB]]=(sc[t[C_SUB]]||0)+1;
+    if(t[C_TR]>=0){ var h=t[C_TR]; for(var b=0;b<HIST_EDGES.length-1;b++){ if(h>=HIST_EDGES[b] && h<HIST_EDGES[b+1]){ hc[b]++; break; } } }
+  }
+  charts.month.data.datasets[0].data=mc;
+  charts.month.data.datasets[0].backgroundColor=M.map(function(x,i){ return (i>=st.mLo&&i<=st.mHi)?'#4aa3ff':'rgba(74,163,255,.28)'; });
+  charts.month.update('none');
+  charts.dep.data.datasets[0].data=dc;
+  charts.dep.data.datasets[0].backgroundColor=DEPS.map(function(d,i){ return st.deps.size&&!st.deps.has(i)?'rgba(56,161,105,.3)':'#38a169'; });
+  charts.dep.update('none');
+  var top=Object.keys(sc).sort(function(a,b){return sc[b]-sc[a];}).slice(0,15);
+  charts.sub.data.labels=top.map(function(i){return SUBS[i];});
+  charts.sub.data.datasets[0].data=top.map(function(i){return sc[i];});
+  charts.sub.data.datasets[0].backgroundColor=top.map(function(i){ return st.subs.size&&!st.subs.has(+i)?'rgba(224,162,26,.3)':'#e0a21a'; });
+  charts.sub.update('none');
+  charts.hist.data.datasets[0].data=hc.map(function(v){return v||null;});
+  charts.hist.update('none');
+}
+
+// ---------------- no-location card ----------------
+(function nolocInit(){
+  var u=AGG.unlocBreak, no=AGG.noStreetBreak;
+  var tot=AGG.offMapTotal, pct=(100*tot/AGG.rows);
+  document.getElementById('nolocHead').textContent = tot+' פניות ('+(Math.round(pct*10)/10)+'%) ללא מיקום מפה';
+  document.getElementById('nolocUnloc').innerHTML=Object.keys(u).map(function(k){return '<li>'+k+' — '+u[k]+'</li>';}).join('')+'<li class="muted">סה״כ '+AGG.unlocatedStreet+'</li>';
+  document.getElementById('nolocNo').innerHTML=Object.keys(no).map(function(k){return '<li>'+k+' — '+no[k]+'</li>';}).join('')+'<li class="muted">סה״כ '+AGG.noStreet+'</li>';
+  document.getElementById('noloc').classList.add('min');
+  document.getElementById('nolocToggle').onclick=function(){ document.getElementById('noloc').classList.toggle('min'); };
+})();
+
+// ---------------- filters UI ----------------
+var depChips=document.getElementById('depChips');
+DEPS.forEach(function(d,i){ var b=document.createElement('span'); b.className='chip'; b.textContent=d+' ('+AGG.byDep[d]+')';
+  b.onclick=function(){ toggleSet(st.deps,i); }; b.dataset.i=i; depChips.appendChild(b); });
+var grpChips=document.getElementById('grpChips');
+SGRP.forEach(function(g,i){ var b=document.createElement('span'); b.className='chip'; b.textContent=g+' ('+AGG.byStatusGroup[g]+')';
+  b.onclick=function(){ toggleSet(st.grps,i); }; b.dataset.i=i; grpChips.appendChild(b); });
+var subListEl=document.getElementById('subList');
+var subOrder=SUBS.map(function(s,i){return i;}).sort(function(a,b){return SUBS[a].localeCompare(SUBS[b],'he');});
+function renderSubList(q){
+  subListEl.innerHTML='';
+  subOrder.forEach(function(i){
+    if(q && SUBS[i].indexOf(q)<0) return;
+    var b=document.createElement('span'); b.className='chip'+(st.subs.has(i)?' on':''); b.textContent=SUBS[i];
+    b.style.margin='2px'; b.onclick=function(){ toggleSet(st.subs,i); };
+    subListEl.appendChild(b);
+  });
+}
+document.getElementById('subSearch').oninput=function(){ renderSubList(this.value.trim()); };
+
+function toggleSet(set,i){ if(set.has(i)) set.delete(i); else set.add(i); if(st.story.on) breakOut(); refresh(); }
+function toggleMonth(i){ if(st.mLo===i && st.mHi===i){ st.mLo=0; st.mHi=M.length-1; } else { st.mLo=i; st.mHi=i; } st.preset=null; if(st.story.on) breakOut(); syncRange(); refresh(); }
+
+var mLo=document.getElementById('mLo'), mHi=document.getElementById('mHi');
+mLo.max=mHi.max=M.length-1; mHi.value=M.length-1;
+function syncRange(){
+  mLo.value=st.mLo; mHi.value=st.mHi;
+  document.getElementById('rngFrom').textContent=M[st.mLo].label;
+  document.getElementById('rngTo').textContent=M[st.mHi].label;
+  document.querySelectorAll('#presets button').forEach(function(b){ b.classList.toggle('on', b.dataset.p===st.preset); });
+}
+mLo.oninput=function(){ st.mLo=Math.min(+this.value,st.mHi); st.preset=null; if(st.story.on) breakOut(); syncRange(); refresh(); };
+mHi.oninput=function(){ st.mHi=Math.max(+this.value,st.mLo); st.preset=null; if(st.story.on) breakOut(); syncRange(); refresh(); };
+
+document.getElementById('presets').onclick=function(e){
+  var p=e.target.dataset.p; if(!p) return; st.preset=p;
+  if(p==='all'){ st.mLo=0; st.mHi=M.length-1; }
+  else if(p==='2025'){ st.mLo=idxOfMonth('2025-01'); st.mHi=idxOfMonth('2025-12'); }
+  else if(p==='2026'){ st.mLo=idxOfMonth('2026-01'); st.mHi=M.length-1; }
+  else if(p==='12m'){ st.mHi=M.length-1; st.mLo=Math.max(0,M.length-12); }
+  else if(p==='q'){ st.mHi=M.length-1; st.mLo=Math.max(0,M.length-3); }
+  if(st.story.on) breakOut(); syncRange(); refresh();
+};
+function idxOfMonth(k){ for(var i=0;i<M.length;i++) if(M[i].key===k) return i; return 0; }
+
+document.getElementById('fBreach').onchange=function(){ st.breach=this.checked; if(st.story.on) breakOut(); refresh(); };
+document.getElementById('fOpen').onchange=function(){ st.open=this.checked; if(st.story.on) breakOut(); refresh(); };
+document.getElementById('fMerge').onchange=function(){ st.merge=this.checked; if(st.story.on) breakOut(); refresh(); };
+document.getElementById('resetFilters').onclick=function(){ resetFilters(); if(st.story.on) breakOut(); refresh(); };
+function resetFilters(){
+  st.mLo=0; st.mHi=M.length-1; st.preset='all'; st.deps.clear(); st.grps.clear(); st.subs.clear();
+  st.breach=st.open=st.merge=false; st.street=null;
+  document.getElementById('fBreach').checked=false; document.getElementById('fOpen').checked=false; document.getElementById('fMerge').checked=false;
+  document.getElementById('subSearch').value='';
+}
+
+document.getElementById('filtToggle').onclick=function(){ var f=document.getElementById('filters'); f.classList.toggle('collapsed'); this.textContent=f.classList.contains('collapsed')?'הצג':'הסתר'; };
+document.getElementById('openFilters').onclick=function(){ document.getElementById('filters').classList.toggle('open'); };
+document.getElementById('chartsToggle').onclick=function(){ toggleCharts(); };
+function toggleCharts(force){
+  var c=document.getElementById('charts');
+  var collapsed = force===undefined ? !c.classList.contains('collapsed') : !force;
+  c.classList.toggle('collapsed',collapsed);
+  document.getElementById('chartsToggle').textContent=collapsed?'הצג ▴':'הסתר ▾';
+  if(!collapsed) setTimeout(function(){ Object.keys(charts).forEach(function(k){charts[k].resize();}); renderCharts(filtered()); },30);
+}
+
+document.getElementById('layerctl').onclick=function(e){
+  var L2=e.target.dataset.layer; if(!L2) return; st.layer=L2;
+  document.querySelectorAll('#layerctl button').forEach(function(b){ b.classList.toggle('on',b.dataset.layer===L2); });
+  if(st.story.on) breakOut();
+  renderMap(filtered());
+};
+
+// ---------------- chip visual sync ----------------
+function syncChips(){
+  depChips.querySelectorAll('.chip').forEach(function(b){ b.classList.toggle('on', st.deps.has(+b.dataset.i)); });
+  grpChips.querySelectorAll('.chip').forEach(function(b){ b.classList.toggle('on', st.grps.has(+b.dataset.i)); });
+  renderSubList(document.getElementById('subSearch').value.trim());
+}
+
+// ---------------- master refresh ----------------
+var refreshQ=null;
+function refresh(){
+  if(refreshQ) clearTimeout(refreshQ);
+  refreshQ=setTimeout(function(){
+    refreshQ=null;
+    var rows=filtered();
+    renderKPIs(rows);
+    renderMap(rows);
+    renderContext(rows);
+    if(!document.getElementById('charts').classList.contains('collapsed')) renderCharts(rows);
+    syncChips(); syncRange();
+  },16);
+}
+
+// ---------------- story mode ----------------
+var STORY=[
+ {t:'התמונה הכוללת',
+  x:function(){ resetFilters(); st.layer='bubbles'; },
+  view:function(){ flyTo(allBounds()); },
+  p:function(){ return AGG.rows.toLocaleString('he-IL')+' פניות ב־'+M.length+' חודשים (01/2025–'+M[M.length-1].label+'). '+
+    DEPS.length+' מחלקות, '+Object.keys(GEO.streets).length+' רחובות ממופים המכסים '+AGG.located.toLocaleString('he-IL')+' פניות (99.16%). '+
+    AGG.offMapTotal+' פניות ('+(Math.round(1000*AGG.offMapTotal/AGG.rows)/10)+'%) בלי מיקום מפה — נמצאות בכרטיס למטה ובכל הספירות.'; }},
+ {t:'הנפח עולה',
+  x:function(){ resetFilters(); st.layer='bubbles'; toggleCharts(true); },
+  view:function(){ flyTo(allBounds()); },
+  p:function(){ var a2025=AGG.y2025,a2026=AGG.y2026; var r25=a2025/12, r26=a2026/8;
+    return '2025: '+a2025.toLocaleString('he-IL')+' פניות ('+Math.round(r25)+' לחודש). '+
+    '2026 עד '+M[M.length-1].label.replace('/',' / ')+': '+a2026.toLocaleString('he-IL')+' פניות ('+Math.round(r26)+' לחודש) — עלייה של '+Math.round(100*(r26/r25-1))+'% בקצב החודשי.'; }},
+ {t:'איפה חם',
+  x:function(){ resetFilters(); st.layer='heat'; },
+  view:function(){ flyTo(builtBounds()); },
+  p:function(){ var top=topStreets(3); return 'ריכוזי הפניות: '+top.map(function(s){return s[0]+' '+s[1];}).join(' · ')+'. '+
+    'מפת החום מראה צפיפות — לא ספירה מדויקת; המיקום הוא ברמת רחוב עם פיזור ויזואלי.'; }},
+ {t:'מה שובר את המערכת',
+  x:function(){ resetFilters(); st.layer='bubbles'; toggleCharts(true); },
+  view:function(){ flyTo(builtBounds()); },
+  p:function(){ var s=AGG.byDep['תברואה']; var clean=0; AGG.bySubjectTop.forEach(function(r){ if(r[0]==='ניקיון רחובות'||r[0]==='פינוי אשפה') clean+=r[1]; });
+    return 'תברואה: '+s.toLocaleString('he-IL')+' פניות = '+Math.round(1000*s/AGG.rows)/10+'% מכלל הפניות. '+
+    'ניקיון רחובות ופינוי אשפה לבדם = '+clean.toLocaleString('he-IL')+' פניות.'; }},
+ {t:'חריגות SLA',
+  x:function(){ resetFilters(); st.breach=true; document.getElementById('fBreach').checked=true; st.layer='bubbles'; },
+  view:function(){ flyTo(builtBounds()); },
+  p:function(){ var br=AGG.breachCount, d=AGG.breachRateByDep;
+    return br.toLocaleString('he-IL')+' חריגות — '+(Math.round(1000*br/AGG.rows)/10)+'% מכלל הפניות, '+
+    (Math.round(1000*br/(AGG.rows-AGG.noDueNoSla))/10)+'% מהפניות שיש להן יעד מוגדר. '+
+    'לפי מחלקה: אחזקה '+d['אחזקה'].pct+'% · גינון '+d['גינון'].pct+'% · תברואה '+d['תברואה'].pct+'% (מתוך כלל פניות המחלקה).'; }},
+ {t:'הזנב הארוך',
+  x:function(){ resetFilters(); st.layer='bubbles'; toggleCharts(true); },
+  view:function(){ flyTo(allBounds()); },
+  p:function(){ return 'חציון זמן הטיפול '+ (Math.round(AGG.medianTreat*10)/10) +' שעות, אבל אחוזון 90 הוא '+
+    Math.round(AGG.p90Treat)+' שעות ('+Math.round(AGG.p90Treat/24)+' ימים) והמקסימום '+Math.round(AGG.maxTreat/24)+' ימים. '+
+    'הזנב כבד — לכן החציון הוא המדד הראשי, לא הממוצע.'; }},
+ {t:'מה פתוח עכשיו',
+  x:function(){ resetFilters(); st.open=true; document.getElementById('fOpen').checked=true; st.layer='bubbles'; },
+  view:function(){ flyTo(builtBounds()); },
+  p:function(){ var o=AGG.openByDep; var top=Object.keys(o).sort(function(a,b){return o[b]-o[a];}).slice(0,3);
+    return AGG.openNoClose.toLocaleString('he-IL')+' פניות פתוחות (ללא תאריך סגירה). '+
+    top.map(function(d){return d+' '+o[d];}).join(' · ')+'. הפנייה הוותיקה ביותר נפתחה '+
+    AGG.oldestOpen.date.split('-').reverse().join('/')+' ('+AGG.oldestOpen.dep+' · '+AGG.oldestOpen.sub+').'; }}
+];
+function flyTo(b){
+  try{
+    if(map.getSize().x<10||map.getSize().y<10){ map.invalidateSize({animate:false}); }
+    if(map.getSize().x<10){ map.fitBounds(b); return; }
+    map.flyToBounds(b,{duration:.8});
+  }catch(e){ try{ map.fitBounds(b); }catch(_){} }
+}
+function allBounds(){ var pts=Object.keys(GEO.streets).map(function(k){return [GEO.streets[k].lat,GEO.streets[k].lon];}); return L.latLngBounds(pts).pad(0.08); }
+function builtBounds(){ var b=D.meta.view.bbox; return L.latLngBounds([[b.latMin,b.lonMin],[b.latMax,b.lonMax]]); }
+function topStreets(k){ return Object.keys(GEO.streets).map(function(n){return [n,GEO.streets[n].tickets||0];}).sort(function(a,b){return b[1]-a[1];}).slice(0,k); }
+
+function renderStoryDots(){
+  document.getElementById('storyDots').innerHTML=STORY.map(function(_,i){return '<button class="dot'+(i===st.story.i?' on':'')+'" data-i="'+i+'"></button>';}).join('');
+}
+function showStory(i){
+  st.story.i=(i+STORY.length)%STORY.length; st.story.broke=false;
+  document.getElementById('backToStory').classList.remove('show');
+  applyStory();
+}
+function applyStory(){
+  var s=STORY[st.story.i];
+  resetFilters(); s.x();
+  document.getElementById('storyN').textContent=(st.story.i+1)+'/'+STORY.length;
+  document.getElementById('storyTitle').textContent=s.t;
+  var panels=[document.getElementById('filters'),document.getElementById('kpis')];
+  var txt=document.getElementById('storyText');
+  txt.style.opacity=0;
+  setTimeout(function(){ txt.textContent=s.p(); txt.style.opacity=1; },180);
+  renderStoryDots();
+  try{ s.view(); }catch(e){}
+  refresh();
+}
+function enterStory(){
+  st.story.on=true;
+  document.getElementById('story').classList.add('show');
+  document.getElementById('storyBtn').style.display='none';
+  document.getElementById('filters').classList.add('collapsed');
+  toggleCharts(false);
+  showStory(0);
+}
+function exitStory(){
+  st.story.on=false; st.story.broke=false;
+  document.getElementById('story').classList.remove('show');
+  document.getElementById('backToStory').classList.remove('show');
+  document.getElementById('storyBtn').style.display='';
+  document.getElementById('filters').classList.remove('collapsed');
+  document.getElementById('filtToggle').textContent='הסתר';
+}
+function breakOut(){
+  if(!st.story.on || st.story.broke) return;
+  st.story.broke=true;
+  document.getElementById('backToStory').classList.add('show');
+}
+document.getElementById('storyBtn').onclick=enterStory;
+document.getElementById('storyExit').onclick=exitStory;
+document.getElementById('storyPrev').onclick=function(){ showStory(st.story.i-1); };
+document.getElementById('storyNext').onclick=function(){ showStory(st.story.i+1); };
+document.getElementById('storyDots').onclick=function(e){ if(e.target.dataset.i!=null) showStory(+e.target.dataset.i); };
+document.getElementById('backToStory').onclick=function(){ st.story.broke=false; document.getElementById('backToStory').classList.remove('show'); applyStory(); };
+map.on('dragstart zoomstart',function(){ if(st.story.on) breakOut(); });
+
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowLeft'){ if(st.story.on) showStory(st.story.i+1); }
+  else if(e.key==='ArrowRight'){ if(st.story.on) showStory(st.story.i-1); }
+  else if(e.key==='Escape'){ if(st.story.on) exitStory(); }
+  else if(/^[1-7]$/.test(e.key)){ if(st.story.on) showStory(+e.key-1); }
+});
+
+// ---------------- go ----------------
+buildCharts();
+syncRange();
+refresh();
+function fixMap(){ try{ map.invalidateSize({animate:false}); }catch(e){} }
+if(/[?&]debug/.test(location.search)){ window.__app={st:st,selectStreet:selectStreet,filtered:filtered,refresh:refresh,map:map,story:STORY,showStory:showStory,goOffline:goOffline}; }
+window.addEventListener('resize',function(){
+  fixMap();
+  Object.keys(charts).forEach(function(k){ try{charts[k].resize();}catch(e){} });
+  if(refreshQ===null) refresh();
+});
+document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='visible'){ fixMap(); refresh(); } });
+// safety: first seconds after load the container may still be settling / hidden
+var warm=0, warmT=setInterval(function(){ fixMap(); if(++warm>6){ clearInterval(warmT); refresh(); } },500);
+})();
+</script>
+</body>
+</html>

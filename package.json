@@ -1,0 +1,25 @@
+{
+  "name": "shefa",
+  "version": "1.0.0",
+  "description": "מוקד שפ\"ע אריאל — תמונת מצב (אתר יחיד, self-contained)",
+  "main": "index.js",
+  "scripts": {
+    "build": "node build.js && node assemble.js",
+    "serve": "node serve.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/menashsoffer/shefa.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/menashsoffer/shefa/issues"
+  },
+  "homepage": "https://github.com/menashsoffer/shefa#readme",
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
