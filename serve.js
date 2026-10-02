@@ -1,8 +1,11 @@
+/* serve.js — שרת סטטי קטן לבדיקה מקומית. אין נקודות קצה, אין תהליכים חיצוניים:
+ * העוזר "נחמן" עונה כולו בדפדפן מהנתונים המוטמעים ב-index.html. */
 const http=require('http'),fs=require('fs'),p=require('path');
 const root=__dirname;
 http.createServer((req,res)=>{
   let f=decodeURIComponent(req.url.split('?')[0]); if(f==='/')f='/index.html';
   const fp=p.join(root,f);
+  if(!fp.startsWith(root)){res.writeHead(403);return res.end('no');}
   fs.readFile(fp,(e,d)=>{
     if(e){res.writeHead(404);res.end('nf');return;}
     const ext=p.extname(fp);

@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>מוקד שפ״ע אריאל · תמונת מצב</title>
+<link rel="icon" href="data:,"><!-- מונע בקשת favicon.ico ו-404 בקונסול -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Heebo:wght@400;600;700&display=swap" rel="stylesheet">
@@ -132,14 +133,67 @@ button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer}
 .pop b{color:var(--accent)}
 .pop{font-family:var(--font);font-size:12.5px;line-height:1.6}
 
+/* assistant (עוזר וירטואלי) */
+#asstBtn{position:fixed;bottom:96px;right:12px;padding:10px 16px;border-radius:12px;background:var(--panel-solid);
+  color:var(--ink);border:1px solid var(--line);font-weight:800;z-index:25;font-family:var(--font)}
+#asstBtn:hover{background:rgba(255,255,255,.12)}
+#asstBtn.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+#assistant{top:104px;right:12px;width:min(520px,44vw);height:calc(100vh - 190px);max-height:calc(100vh - 150px);
+  min-width:320px;min-height:280px;display:none;flex-direction:column;padding:0;z-index:26;resize:both;overflow:hidden}
+#assistant.show{display:flex}
+#assistant.wide{width:min(820px,72vw)}
+#assistant .hd{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line);flex:0 0 auto}
+#assistant .hd h2{font-size:15px;margin:0;flex:1}
+#assistant .hd h2 small{font-weight:500;color:var(--ink-dim);font-size:12px}
+#assistant .hd button{border:none;background:transparent;font-size:17px;line-height:1;color:var(--ink-dim);padding:2px 5px;border-radius:6px}
+#assistant .hd button:hover{background:rgba(255,255,255,.12);color:var(--ink)}
+#assistant .hd .close{font-size:20px}
+#asstLog{flex:1 1 auto;overflow:auto;padding:12px 14px;display:flex;flex-direction:column;gap:9px;min-height:0}
+.msg{max-width:88%;padding:9px 12px;border-radius:12px;font-size:14px;line-height:1.65;white-space:pre-wrap;word-break:break-word}
+.msg.me{align-self:flex-start;background:var(--accent);color:var(--accent-ink);font-weight:600;border-bottom-right-radius:4px}
+.msg.bot{align-self:flex-end;background:rgba(255,255,255,.06);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.bot.err{border-color:#7a5a20;color:#ffcf6b}
+.msg .cites{margin-top:6px;padding-top:6px;border-top:1px dashed var(--line);font-size:11.5px;color:var(--ink-dim);white-space:normal}
+.msg .cites b{color:var(--accent);font-weight:700}
+.msg table{border-collapse:collapse;margin-top:6px;font-size:12.5px;width:100%}
+.msg td{padding:2px 0;border-bottom:1px dashed var(--line)}
+.msg td:last-child{text-align:left;font-weight:700;white-space:nowrap;padding-inline-start:10px}
+.msg .hint{color:var(--ink-dim)}
+#asstFoot{border-top:1px solid var(--line);padding:8px 12px 10px;flex:0 0 auto}
+#asstStarters{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+#asstStarters button{font-size:11.5px;padding:4px 9px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.05);color:var(--ink-dim);font-family:var(--font)}
+#asstStarters button:hover{background:rgba(255,255,255,.12);color:var(--ink)}
+#asstRow{display:flex;gap:6px}
+#asstQ{flex:1;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:rgba(0,0,0,.25);color:var(--ink);font-family:var(--font);font-size:13px}
+#asstSend{padding:8px 14px;border-radius:10px;border:none;background:var(--accent);color:var(--accent-ink);font-weight:800;font-family:var(--font)}
+#asstSend:disabled{opacity:.5}
+#asstCfg{margin-top:8px;font-size:11px;color:var(--ink-dim);text-align:center}
+#asstStarters .more{border-color:var(--accent);color:var(--accent)}
+/* רשימת "מה אפשר לשאול" — כל פריט הוא שאלה שאפשר ללחוץ עליה */
+.msg.bank{max-width:100%}
+.bankgrp{margin-top:9px}
+.bankgrp i{display:block;font-style:normal;font-size:11px;font-weight:700;color:var(--ink-dim);margin-bottom:4px}
+.bankgrp button{font-size:12px;padding:4px 9px;margin:0 0 4px 4px;border-radius:999px;
+  border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--ink);font-family:var(--font);text-align:start}
+.bankgrp button:hover{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+
+/* כשנחמן פתוח, מגירת הגרפים מתקצרת ונצמדת שמאלה במקום להיחבא מתחת לפאנל */
+@media (min-width:1280px){
+  body.asst-open #charts{left:12px;right:auto;transform:none;
+    width:min(1200px, calc(100vw - var(--asst-w,520px) - 40px))}
+  body.asst-open #charts.collapsed{transform:translateY(calc(100% - 40px))}
+}
+
 /* responsive: panels -> drawers under 1280 */
 @media (max-width:1279px){
   #kpis{flex-wrap:wrap;justify-content:center;gap:6px}
   #kpis .kpi{min-width:31%}
   #kpis .kpi .v{font-size:24px}
-  #filters,#context{top:auto;bottom:0;left:0;right:0;width:100%;max-height:64vh;border-radius:16px 16px 0 0;transform:translateY(0)}
+  #filters,#context,#assistant{top:auto;bottom:0;left:0;right:0;width:100%;max-height:64vh;border-radius:16px 16px 0 0;transform:translateY(0)}
   #filters{display:none}#filters.open{display:flex}
   #context{width:100%}
+  #assistant{width:100%}
   #noloc,#legend{display:none!important}
   #openFilters{display:block}
 }
@@ -233,6 +287,26 @@ button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer}
 </div>
 <button id="backToStory">↩ חזרה לסיפור</button>
 
+<button id="asstBtn">🤖 נחמן</button>
+<div id="assistant" class="layer">
+  <div class="hd">
+    <h2>נחמן <small>· עוזר וירטואלי</small></h2>
+    <button id="asstClear" title="נקה שיחה">🗑</button>
+    <button id="asstWide" title="הרחב / הצר">⤢</button>
+    <button class="close" id="asstClose" title="סגור">✕</button>
+  </div>
+  <div id="asstLog"></div>
+  <div id="asstFoot">
+    <div id="asstStarters"></div>
+    <div class="switch" style="margin:0 0 8px"><input type="checkbox" id="asstDrive" checked><label for="asstDrive">עדכן מפה וסינון לפי התשובה</label></div>
+    <div id="asstRow">
+      <input id="asstQ" placeholder="שאל שאלה על הנתונים…" autocomplete="off">
+      <button id="asstSend">שלח</button>
+    </div>
+    <div id="asstCfg">כל התשובות מחושבות מהנתונים שבקובץ — ללא רשת וללא מודל.</div>
+  </div>
+</div>
+
 <div id="credit">
   רקע מפה © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors ·
   גיאומטריית גבול ורחובות: OpenStreetMap, ODbL — relation 10011903 (admin_level=8), תיבה 32.086,35.145–32.130,35.225 ·
@@ -241,6 +315,7 @@ button{font-family:inherit;font-size:inherit;color:inherit;cursor:pointer}
 
 <!--VENDOR_JS-->
 <!--SITE_DATA-->
+<!--SITE_WIKI-->
 <script>
 (function(){
 "use strict";
@@ -447,7 +522,8 @@ function selectStreet(nm){
 }
 function renderContext(rows){
   var el=document.getElementById('context');
-  if(st.street==null){ el.classList.remove('show'); return; }
+  // העוזר חולק את אותה מסילה ימנית — כשהוא פתוח, פאנל ההקשר מפנה לו מקום
+  if(st.street==null || document.getElementById('assistant').classList.contains('show')){ el.classList.remove('show'); return; }
   el.classList.add('show');
   var nm=st.street, g=GEO.streets[nm];
   // stats for this street across CURRENT date/other filters but ignoring the street filter itself:
@@ -701,7 +777,15 @@ function flyTo(b){
 }
 function allBounds(){ var pts=Object.keys(GEO.streets).map(function(k){return [GEO.streets[k].lat,GEO.streets[k].lon];}); return L.latLngBounds(pts).pad(0.08); }
 function builtBounds(){ var b=D.meta.view.bbox; return L.latLngBounds([[b.latMin,b.lonMin],[b.latMax,b.lonMax]]); }
-function topStreets(k){ return Object.keys(GEO.streets).map(function(n){return [n,GEO.streets[n].tickets||0];}).sort(function(a,b){return b[1]-a[1];}).slice(0,k); }
+// build.js לא מעביר את שדה tickets מ-street_geo_final.json (הוא מסונן ב-buildGeo),
+// ולכן GEO.streets[x].tickets תמיד undefined. סופרים מהפניות עצמן.
+function topStreets(k){
+  var m={},i;
+  for(i=0;i<TK.length;i++){ var t=TK[i]; if(t[C_ST]<0) continue;
+    var nm=STREETS[t[C_ST]]; if(!GEO.streets[nm]) continue; m[nm]=(m[nm]||0)+1; }
+  return Object.keys(m).map(function(n){ return [n,m[n]]; })
+    .sort(function(a,b){ return b[1]-a[1]; }).slice(0,k);
+}
 
 function renderStoryDots(){
   document.getElementById('storyDots').innerHTML=STORY.map(function(_,i){return '<button class="dot'+(i===st.story.i?' on':'')+'" data-i="'+i+'"></button>';}).join('');
@@ -760,12 +844,504 @@ document.addEventListener('keydown',function(e){
   else if(/^[1-7]$/.test(e.key)){ if(st.story.on) showStory(+e.key-1); }
 });
 
+// ---------------- עוזר וירטואלי ----------------
+// מנוע אחד בלבד, מקומי לגמרי:
+//   parseHe()    — מנתח עברית -> spec (מסנן + מדד)
+//   runQuery()   — מריץ את spec דרך אותו filtered() שמזין את כל הפאנלים
+//   wikiLookup() — עונה על שאלות הגדרה/הסבר מתוך data/wiki
+// אין רשת, אין מפתחות, אין מודל. כל תשובה נגזרת מהנתונים המוטמעים בקובץ,
+// ולכן מספר שנחמן אומר שווה בהכרח למה שהפאנלים מראים לאותו סינון.
+
+var WIKI = window.SITE_WIKI || [];
+
+// --- עזרי טקסט ---
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function num(n){ return Number(n).toLocaleString('he-IL'); }
+function pct(a,b){ return b? (Math.round(1000*a/b)/10)+'%' : '—'; }
+// גרשיים נמחקים ולא מוחלפים ברווח, אחרת שפ"ע מתפרק לשתי מילים קצרות מדי
+function norm(s){ return String(s).toLowerCase().replace(/["'׳״”’]/g,''); }
+function toks(q){ return norm(q).replace(/[?!.,()\[\]־–—:;]/g,' ').split(/\s+/).filter(function(w){ return w.length>=3; }); }
+
+// --- מילון מילים נרדפות: ניסוח יומיומי -> ערך בנתונים ---
+var SYN={
+  'אשפה':'פינוי אשפה','זבל':'פינוי אשפה','פחים':'פח שבור/ פח לא תקין','פח':'פח שבור/ פח לא תקין',
+  'ניקיון':'ניקיון רחובות','גזם':'פינוי גזם וגרוטאות','גרוטאות':'פינוי גזם וגרוטאות',
+  'תאורה':'תאורת רחוב תקולה','פנסים':'תאורת רחוב תקולה','פנס':'תאורת רחוב תקולה',
+  'השקייה':'השקיה','עץ':'עצים','כלב':'כלבים','חתול':'חתולים','פגרים':'סילוק פגרים','פגר':'סילוק פגרים',
+  'מדרכה':'מדרכות ומדרגות','מדרכות':'מדרכות ומדרגות','בורות':'בורות בכביש','שילוט':'תמרורים ושלטים',
+  'תמרור':'תמרורים ושלטים','תמרורים':'תמרורים ושלטים','משחקים':'גני משחקים','מחזור':'מחזור אריזות (פחים כתומים)',
+  'הדברה':'ריסוס והדברה','עשבים':'עשבייה','גיזום':'גיזום עצים',
+  'כתומים':'מחזור אריזות (פחים כתומים)','כתום':'מחזור אריזות (פחים כתומים)','אריזות':'מחזור אריזות (פחים כתומים)',
+  'כחולים':'מחזור נייר (פחים כחולים)','נייר':'מחזור נייר (פחים כחולים)','קרטון':'מחזור קרטון',
+  'ריהוט':'ריהוט רחובות','שפנים':'שפני סלע','כלביה':'הקפצה לכלביה / חיה פצועה','אינסטלציה':'אינסטלציה'
+};
+
+// --- זיהוי ישויות: טקסט עברי -> אינדקסים בממדים ---
+// חייב גבול מילה עברי, אחרת "חציון" תופס את הרחוב "ציון" ו"פניות" תופס
+// את המחלקה "פניות מידע שפ״ע". אותיות שימוש מותרות כתחילית אחת בלבד.
+var HEB='֐-׿', PFX='בהולמשכו', _reCache={};
+function reEsc(s){ return s.replace(/[.*+?^${}()|[\]\\\/]/g,'\\$&'); }
+function nameRe(nm){
+  if(!_reCache[nm]) _reCache[nm]=new RegExp('(^|[^'+HEB+'])['+PFX+']?'+reEsc(nm)+'(?!['+HEB+'])');
+  return _reCache[nm];
+}
+function matchDim(list,q,tokens){
+  var out=[],i;
+  for(i=0;i<list.length;i++) if(list[i].length>=3 && nameRe(list[i]).test(q)) out.push(i);
+  if(out.length) return out;
+  // נפילה אחורה: רק מילים נרדפות מפורשות, לא הכלה חופשית של מחרוזות
+  var seen={};
+  for(i=0;i<tokens.length;i++){
+    var s=SYN[tokens[i]]; if(!s) continue;
+    var j=list.indexOf(s);
+    if(j>=0 && !seen[j]){ seen[j]=1; out.push(j); }
+  }
+  return out;
+}
+
+var HE_MONTHS=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+
+// --- החוזה: spec ריק ---
+function blankSpec(){
+  return { filter:{mLo:0,mHi:M.length-1,deps:[],grps:[],subs:[],street:null,breach:false,open:false,merge:false},
+           metric:'count', groupBy:null, topN:5, preset:'all' };
+}
+
+// --- החוזה -> st ---
+function applySpec(spec){
+  var f=spec.filter;
+  resetFilters();
+  st.mLo=f.mLo; st.mHi=f.mHi; st.preset=spec.preset||null;
+  f.deps.forEach(function(i){ st.deps.add(i); });
+  f.grps.forEach(function(i){ st.grps.add(i); });
+  f.subs.forEach(function(i){ st.subs.add(i); });
+  st.breach=!!f.breach; st.open=!!f.open; st.merge=!!f.merge; st.street=f.street;
+  document.getElementById('fBreach').checked=st.breach;
+  document.getElementById('fOpen').checked=st.open;
+  document.getElementById('fMerge').checked=st.merge;
+}
+function snapshot(){ return {mLo:st.mLo,mHi:st.mHi,preset:st.preset,deps:new Set(st.deps),grps:new Set(st.grps),
+  subs:new Set(st.subs),breach:st.breach,open:st.open,merge:st.merge,street:st.street}; }
+function restore(s){ st.mLo=s.mLo; st.mHi=s.mHi; st.preset=s.preset; st.deps=s.deps; st.grps=s.grps;
+  st.subs=s.subs; st.breach=s.breach; st.open=s.open; st.merge=s.merge; st.street=s.street; }
+
+// --- המדידה. כל מספר שהעוזר אומר יוצא מכאן ---
+function measure(rows,spec){
+  var n=rows.length, br=0, opn=0, withMetric=0, closed=0, tr=[];
+  for(var i=0;i<n;i++){ var t=rows[i];
+    if(has(t,F.BREACH)) br++;
+    if(has(t,F.CLOSE)) closed++; else opn++;
+    if(has(t,F.METRIC)) withMetric++;
+    if(has(t,F.CLOSE)&&t[C_TR]>=0) tr.push(t[C_TR]);
+  }
+  tr.sort(function(a,b){return a-b;});
+  var out={n:n,breach:br,open:opn,closed:closed,withMetric:withMetric,
+    medianTreat:median(tr), p90Treat:tr.length? tr[Math.min(tr.length-1,Math.floor(tr.length*0.9))]:null,
+    groups:null};
+  if(spec.groupBy) out.groups=groupRows(rows,spec);
+  return out;
+}
+function groupRows(rows,spec){
+  var key;
+  if(spec.groupBy==='dep') key=function(t){ return DEPS[t[C_DEP]]; };
+  else if(spec.groupBy==='sub') key=function(t){ return SUBS[t[C_SUB]]; };
+  else if(spec.groupBy==='statusGroup') key=function(t){ return SGRP[t[C_GRP]]; };
+  else if(spec.groupBy==='month') key=function(t){ return t[C_MI]<0?'ללא תאריך':M[t[C_MI]].label; };
+  else key=function(t){ return t[C_ST]<0?null:STREETS[t[C_ST]]; }; // street
+  var m={};
+  for(var i=0;i<rows.length;i++){
+    var k=key(rows[i]); if(k==null) continue;
+    var o=m[k]||(m[k]={n:0,b:0}); o.n++; if(has(rows[i],F.BREACH)) o.b++;
+  }
+  var arr=Object.keys(m).map(function(k){ return [k,m[k].n,m[k].b]; });
+  var byBreach = (spec.metric==='breach'||spec.metric==='breachRate');
+  if(spec.groupBy==='month') arr.sort(function(a,b){ return a[0].slice(3)+a[0].slice(0,2) < b[0].slice(3)+b[0].slice(0,2) ? -1:1; });
+  else if(spec.metric==='breachRate') arr.sort(function(a,b){ return (b[2]/b[1])-(a[2]/a[1]); });
+  else arr.sort(function(a,b){ return byBreach? b[2]-a[2] : b[1]-a[1]; });
+  if(spec.sortAsc && spec.groupBy!=='month') arr.reverse();
+  return arr.slice(0, spec.groupBy==='month'? 24 : (spec.topN||5));
+}
+
+// --- ההרצה. משתמשת ב-filtered() הקיים, ולכן תמיד מסכימה עם הפאנלים ---
+function runQuery(spec){
+  // "כמה חריגות" הוא מדד, לא רק מסנן
+  if(spec.filter.breach && spec.metric==='count') spec.metric='breach';
+  var saved=snapshot();
+  applySpec(spec);
+  // כשמסננים לחריגות בלבד, סך הפניות שווה למספר החריגות ו"100%" יוצא חסר משמעות.
+  // לכן מודדים על אותו סינון בדיוק בלי דגל החריגה — measure() סופר את החריגות
+  // בתוכו ממילא, כך שכל המונים והמכנים נשארים באותה קבוצת ייחוס.
+  if(spec.filter.breach) st.breach=false;
+  var out=measure(filtered(),spec);
+  restore(saved);
+  return out;
+}
+
+// --- תיאור המסנן, לשורת הציטוט ---
+function describe(spec){
+  var f=spec.filter, p=[];
+  if(f.mLo>0||f.mHi<M.length-1) p.push(M[f.mLo].label+'–'+M[f.mHi].label);
+  if(f.deps.length) p.push(f.deps.map(function(i){return DEPS[i];}).join(' / '));
+  if(f.grps.length) p.push(f.grps.map(function(i){return SGRP[i];}).join(' / '));
+  if(f.subs.length) p.push(f.subs.map(function(i){return SUBS[i];}).join(' / '));
+  if(f.street) p.push('רחוב '+f.street);
+  // כשהמדד עצמו הוא חריגות, המספרים מדווחים על קבוצת הייחוס המלאה —
+  // "חריגות בלבד" היה סותר את המכנה שמוצג לצידו
+  if(f.breach && spec.metric!=='breach' && spec.metric!=='breachRate') p.push('חריגות בלבד');
+  if(f.open) p.push('פתוחות בלבד');
+  if(f.merge) p.push('ללא פניות המשך');
+  return p.length? p.join(' · ') : 'כל הנתונים';
+}
+
+// --- ניסוח התשובה המקומית ---
+function narrate(spec,r){
+  var head, m=spec.metric, den=r.n;
+  if(m==='breach')        head='נמצאו <b>'+num(r.breach)+'</b> חריגות SLA, מתוך '+num(den)+' פניות ('+pct(r.breach,den)+').';
+  else if(m==='breachRate') head='שיעור חריגת ה-SLA הוא <b>'+pct(r.breach,den)+'</b> — '+num(r.breach)+' מתוך '+num(den)+' פניות.';
+  else if(m==='open')     head='נמצאו <b>'+num(r.open)+'</b> פניות פתוחות (ללא תאריך סגירה), מתוך '+num(r.n)+' פניות.';
+  else if(m==='closed')   head='<b>'+num(r.closed)+'</b> פניות נסגרו, מתוך '+num(r.n)+' ('+pct(r.closed,r.n)+').';
+  else if(m==='medianTreat') head= r.medianTreat==null? 'אין פניות סגורות בסינון הזה, ולכן אין חציון זמן טיפול.'
+                                 : 'חציון זמן הטיפול הוא <b>'+fmtDur(r.medianTreat)+'</b> (על '+num(r.n)+' פניות).';
+  else if(m==='p90Treat') head= r.p90Treat==null? 'אין פניות סגורות בסינון הזה.'
+                                 : 'אחוזון 90 של זמן הטיפול הוא <b>'+fmtDur(r.p90Treat)+'</b> (על '+num(r.n)+' פניות).';
+  else                    head='נמצאו <b>'+num(r.n)+'</b> פניות.';
+  var body='';
+  if(r.groups&&r.groups.length){
+    var rate=(m==='breachRate'), brk=(m==='breach');
+    body='<table>'+r.groups.map(function(g){
+      var v = rate? pct(g[2],g[1]) : (brk? num(g[2]) : num(g[1]));
+      return '<tr><td>'+esc(g[0])+'</td><td>'+v+'</td></tr>';
+    }).join('')+'</table>';
+  }
+  return head+body;
+}
+
+// --- ויקי: אחזור ללא embeddings, ניקוד לפי תגיות וחפיפת מילים ---
+// שאלות הגדרה/הסבר — "מה זה חריגה" אינה בקשה לספירה
+var DEFN=/מה זה|מהו|מהי|מה הם|למה |מדוע|הסבר|במה מטפל|מה המשמעות|מה ההבדל|איך מחושב|מה נחשב|מה פירוש|מה כולל/;
+function wikiLookup(q,topic,minScore){
+  // מסירים את מילות השאלה ("מה זה", "למה") כדי שלא יטו את הניקוד,
+  // ומנרמלים רישיות. התאמת תגית סובלת נטיות ע"י השוואת גזע בן 4 אותיות.
+  var text=norm(String((topic||'')+' '+q)).replace(DEFN,' ');
+  var tk=toks(text), best=[];
+  function stemHit(tag){
+    if(text.indexOf(tag)>=0) return true;
+    if(tag.length<4) return false;
+    for(var i=0;i<tk.length;i++) if(tk[i].length>=4 && tk[i].slice(0,4)===tag.slice(0,4)) return true;
+    return false;
+  }
+  WIKI.forEach(function(w){
+    var s=0, title=norm(w.title), body=norm(w.text);
+    w.tags.forEach(function(tg){ tg=norm(tg); if(tg.length>=2 && stemHit(tg)) s+=3; });
+    tk.forEach(function(t){ if(title.indexOf(t)>=0) s+=4; if(body.indexOf(t)>=0) s+=1; });
+    if(s>0) best.push([s,w]);
+  });
+  best.sort(function(a,b){ return b[0]-a[0]; });
+  // התאמה חלשה גרועה מ"לא ידעתי" — היא נראית כמו תשובה בלי להיות כזו
+  if(minScore && (!best.length || best[0][0]<minScore)) return [];
+  return best.slice(0,2).map(function(x){ return x[1]; });
+}
+function wikiSection(w,q){
+  // מחזיר את הקטע הרלוונטי ביותר, לא את כל הקובץ. מקטע עם כותרות ## מתפצל לפיהן;
+  // המילון, שאין בו כותרות, מתפצל לפסקאות — אחרת כל שאלה עליו מחזירה את כולו.
+  var parts=w.text.split(/\n(?=## )/);
+  if(parts.length<2) parts=w.text.split(/\n\s*\n/);
+  var tk=toks(q), best=parts[0], bs=-1;
+  parts.forEach(function(p){
+    var np=norm(p), s=0;
+    tk.forEach(function(t){ if(np.indexOf(t)>=0) s++; });
+    if(s>bs){ bs=s; best=p; }
+  });
+  return best.trim();
+}
+function mdToHtml(md){
+  var out=[], rows=[];
+  md.split(/\r?\n/).forEach(function(line){
+    if(/^\s*\|/.test(line)){
+      if(/^\s*\|[\s\-|:]+\|\s*$/.test(line)) return;
+      var c=line.trim().replace(/^\||\|$/g,'').split('|');
+      rows.push('<tr><td>'+esc(c[0].trim())+'</td><td>'+esc(c.slice(1).join(' · ').trim())+'</td></tr>');
+      return;
+    }
+    if(rows.length){ out.push('<table>'+rows.join('')+'</table>'); rows=[]; }
+    if(/^##\s/.test(line)) out.push('<b>'+esc(line.replace(/^##\s*/,''))+'</b>');
+    else if(line.trim()) out.push(esc(line.trim()));
+  });
+  if(rows.length) out.push('<table>'+rows.join('')+'</table>');
+  return out.join('\n').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+}
+
+// --- המנתח המקומי: עברית -> spec ---
+// s.score = כמה אותות ממשיים נמצאו. ציון גבוה => עונים מיד מקומית;
+// ציון נמוך => שווה להעלות ל-CLI, שיבין ניסוח שהדפוסים כאן מפספסים.
+function parseHe(q){
+  var s=blankSpec(), f=s.filter, tk=toks(q), n=0;
+  // זמן
+  if(/2025/.test(q)){ f.mLo=idxOfMonth('2025-01'); f.mHi=idxOfMonth('2025-12'); s.preset='2025'; n++; }
+  else if(/2026/.test(q)){ f.mLo=idxOfMonth('2026-01'); f.mHi=M.length-1; s.preset='2026'; n++; }
+  else if(/רבעון/.test(q)){ f.mLo=Math.max(0,M.length-3); f.mHi=M.length-1; s.preset='q'; n++; }
+  else if(/12\s*ח|שנה האחרונה|שנה אחרונה/.test(q)){ f.mLo=Math.max(0,M.length-12); f.mHi=M.length-1; s.preset='12m'; n++; }
+  // "השנה" = שנת הנתונים הנוכחית, כלומר 2026
+  else if(/השנה|שנה נוכחית/.test(q)){ f.mLo=idxOfMonth('2026-01'); f.mHi=M.length-1; s.preset='2026'; n++; }
+  else if(/שנה שעברה|אשתקד/.test(q)){ f.mLo=idxOfMonth('2025-01'); f.mHi=idxOfMonth('2025-12'); s.preset='2025'; n++; }
+  // דגלים
+  if(/חריג|חורג|סטיי|איחור|באיחור|SLA|sla/.test(q)){ f.breach=true; s.metric='breach'; n++; }
+  if(/פתוח|פתוחות|תקוע|לא נסגר|לא טופל/.test(q)){ f.open=true; s.metric='open'; n++; }
+  if(/המשך|כפילו|כפול/.test(q)){ f.merge=true; n++; }
+  if(/סגור|נסגר|טופלו|שטופלו/.test(q) && !f.open){ s.metric='closed'; n++; }
+  // חודש מפורש: "ינואר", "ינואר 2025", "03/2025"
+  var mm=/(\d{1,2})\s*[\/.\-]\s*(20\d{2})/.exec(q);
+  if(mm){
+    var k=mm[2]+'-'+String(+mm[1]).padStart(2,'0'), i=idxOfMonth(k);
+    if(M[i] && M[i].key===k){ f.mLo=f.mHi=i; s.preset=null; n++; }
+  } else {
+    for(var hm=0;hm<HE_MONTHS.length;hm++){
+      if(q.indexOf(HE_MONTHS[hm])<0) continue;
+      var yr=/2025/.test(q)?'2025':(/2026/.test(q)?'2026':null);
+      var mk=String(hm+1).padStart(2,'0');
+      var cand = yr? [yr+'-'+mk] : ['2026-'+mk,'2025-'+mk];
+      for(var ci=0;ci<cand.length;ci++){
+        var ix=idxOfMonth(cand[ci]);
+        if(M[ix] && M[ix].key===cand[ci]){ f.mLo=f.mHi=ix; s.preset=null; n++; break; }
+      }
+      break;
+    }
+  }
+  // מדדים
+  if(/שיעור|אחוז|%/.test(q) && f.breach){ s.metric='breachRate'; n++; }
+  if(/חציון|זמן טיפול|כמה זמן|משך|מהירות/.test(q)){ s.metric='medianTreat'; n++; }
+  if(/אחוזון|p90|זנב|הכי ארוך|ארוכות|איטי/.test(q)){ s.metric='p90Treat'; n++; }
+  // ישויות
+  var d=matchDim(DEPS,q,tk); if(d.length){ f.deps=d; n++; }
+  var g=matchDim(SGRP,q,tk); if(g.length&&/סטטוס|טופל|נסגר|הועבר/.test(q)){ f.grps=g; n++; }
+  var streetHint=/רחוב|ברחוב|שדרות|דרך/.test(q);
+  var stm=matchDim(STREETS,q,tk);
+  var sm=matchDim(SUBS,q,tk);
+  if(streetHint && stm.length){ f.street=STREETS[stm[0]]; n++; }
+  else if(sm.length){ f.subs=sm; n++; }
+  else if(stm.length){ f.street=STREETS[stm[0]]; n++; }
+  // קיבוץ
+  if(/לפי מחלקה|איזו מחלקה|אילו מחלקות|מחלקות|בין המחלקות/.test(q)){ s.groupBy='dep'; s.topN=8; n++; }
+  else if(/לפי חודש|מגמה|לאורך זמן|חודשים|חודשי|עונתי|התפתחות/.test(q)){ s.groupBy='month'; n++; }
+  else if(/לפי סטטוס|סטטוסים|התפלגות סטטוס/.test(q)){ s.groupBy='statusGroup'; s.topN=4; n++; }
+  else if(/איפה|רחובות|באילו רחובות|אילו רחובות|לפי רחוב/.test(q)){ s.groupBy='street'; n++; }
+  else if(/נושא|נושאים|סוגי|לפי נושא|על מה|תלונות/.test(q)){ s.groupBy='sub'; n++; }
+  else if(/מקומות|אזורים|שכונות|היכן/.test(q)){ s.groupBy='street'; n++; }
+  if(/הכי הרבה|הכי גבוה|מובילים|מוביל|דירוג|top|ראשונים|בעייתי|בעייתיים|גרוע|גרועים|חמור|נפוץ|שכיח|בולט/.test(q)){
+    if(!s.groupBy) s.groupBy=f.deps.length? 'sub' : 'street'; n++;
+  }
+  if(/הכי מעט|הכי נמוך|הכי פחות/.test(q)){ s.sortAsc=true; if(!s.groupBy) s.groupBy='dep'; n++; }
+  if(/כל ה|רשימה|פרט|הצג את כל/.test(q) && s.groupBy) s.topN=99;
+  // "כמה הכל" הוא שאלה חוקית ומלאה בפני עצמה — סך כל הפניות
+  if(/סך הכל|סה"כ|סהכ|בסך|בכלל|בסך־הכל/.test(q)) n++;
+  // "כמה" לבדו, בלי שום אות אחר, אינו מספיק — הוא מופיע כמעט בכל שאלה
+  if(!n && /כמה|מספר/.test(q)) n=0.5;
+  s.score=n;
+  return n? s : null;
+}
+
+// --- קטלוג ל-system prompt. שמות בלבד, בלי אף שורת פנייה ---
+// --- ממשק ---
+var asstPanel=document.getElementById('assistant'), asstLog=document.getElementById('asstLog'),
+    asstQ=document.getElementById('asstQ'), asstSend=document.getElementById('asstSend'),
+    asstBtn=document.getElementById('asstBtn'), asstBusy=false;
+
+function bubble(cls,html){
+  var d=document.createElement('div'); d.className='msg '+cls; d.innerHTML=html;
+  asstLog.appendChild(d); asstLog.scrollTop=asstLog.scrollHeight; return d;
+}
+function cites(spec,r){
+  var extra='';
+  if(spec.metric==='breach'||spec.metric==='breachRate') extra=' · '+pct(r.breach,r.withMetric)+' מבעלות יעד';
+  var chart='';
+  if(spec.groupBy && document.getElementById('asstDrive').checked)
+    chart='\n<b>הגרפים למטה עודכנו לאותו סינון.</b>';
+  return '<div class="cites">מסנן: <b>'+esc(describe(spec))+'</b> ← '+num(r.n)+' פניות · '+
+    num(r.breach)+' חריגות · '+num(r.open)+' פתוחות'+extra+chart+'</div>';
+}
+function drive(spec){
+  if(!document.getElementById('asstDrive').checked || !spec) return;
+  if(st.story.on) breakOut();
+  applySpec(spec);
+  refresh();
+  try{
+    if(spec.filter.street && GEO.streets[spec.filter.street]){
+      var g=GEO.streets[spec.filter.street]; map.flyTo([g.lat,g.lon],16,{duration:.8});
+    } else flyTo(builtBounds());
+  }catch(e){}
+}
+
+// --- מצב סיפור: 7 התצוגות המוכנות, נגישות דרך שאלה פתוחה ---
+var STORY_KEYS=[
+  /תמונה כוללת|תמונת מצב|מצב כללי|סקירה|בגדול|הכל/,
+  /נפח|עלייה|עולה|גדל|קצב|יותר פניות|מגמה/,
+  /איפה חם|חם|ריכוז|צפיפות|מפת חום|איפה הבעיות/,
+  /שובר|עומס|מעמיס|הכי הרבה עבודה|מה הכי כבד/,
+  /חריג|sla|איחור/i,
+  /זנב|ארוך|ארוכות|חציון|זמן טיפול/,
+  /מה פתוח|פתוח עכשיו|תקוע|פתוחות/
+];
+var STORY_ASK=/ספר לי|סיפור|תמונת מצב|מה המצב|סקירה|סיכום|תציג לי סקירה|מצב סיפור/;
+function answerStory(q){
+  var best=0, bs=-1;
+  for(var i=0;i<STORY_KEYS.length;i++){
+    var sc=STORY_KEYS[i].test(q)?1:0;
+    if(STORY[i] && q.indexOf(STORY[i].t)>=0) sc+=3;
+    if(sc>bs){ bs=sc; best=i; }
+  }
+  if(!document.getElementById('asstDrive').checked){
+    // המשתמש כיבה שליטה במפה — נותנים את הטקסט בלי לשנות את הלוח
+    bubble('bot','<b>'+esc(STORY[best].t)+'</b>\n'+esc(STORY[best].p())+
+      '<div class="cites">מתוך מצב סיפור · תצוגה '+(best+1)+'/'+STORY.length+'</div>');
+    return true;
+  }
+  if(!st.story.on) enterStory();
+  showStory(best);
+  bubble('bot','<b>'+esc(STORY[best].t)+'</b>\n'+esc(STORY[best].p())+
+    '<div class="cites">מצב סיפור · תצוגה <b>'+(best+1)+'/'+STORY.length+'</b> — הסינון והמפה עודכנו. חצים ← → למעבר בין התצוגות.</div>');
+  return true;
+}
+function answerWiki(q,minScore){
+  var hits=wikiLookup(q,null,minScore);
+  if(!hits.length) return false;
+  var w=hits[0];
+  bubble('bot',mdToHtml(wikiSection(w,q))+'<div class="cites">מקור: <b>'+esc(w.title)+'</b></div>');
+  return true;
+}
+function answerLocal(q){
+  if(STORY_ASK.test(q) && answerStory(q)) return;
+  if(DEFN.test(q) && answerWiki(q)) return;
+  var spec=parseHe(q);
+  if(spec && spec.score>=1){ answerSpec(spec); return; }
+  if(answerWiki(q)) return;
+  if(spec){ answerSpec(spec); return; }   // ניחוש חלש עדיף על כלום — שורת המסנן חושפת אותו
+  bubble('bot err','לא הבנתי את השאלה — נסו לנסח אותה עם שם מחלקה, נושא, רחוב, שנה או חודש.');
+  showBank();
+}
+function answerSpec(spec){
+  var r=runQuery(spec);
+  if(r.n===0){ bubble('bot','לא נמצאו פניות בסינון הזה.'+cites(spec,r)); return; }
+  bubble('bot',narrate(spec,r)+cites(spec,r));
+  drive(spec);
+}
+// מנוע מקומי בלבד — סינכרוני, ללא רשת. כל תשובה חוזרת מיד.
+function ask(q){
+  q=String(q||'').trim(); if(!q||asstBusy) return;
+  bubble('me',esc(q));
+  asstQ.value=''; asstBusy=true; asstSend.disabled=true;
+  try{ answerLocal(q); }
+  finally{ asstBusy=false; asstSend.disabled=false; asstQ.focus(); }
+}
+
+// --- מאגר השאלות. נבנה מהנתונים עצמם, ולכן כל שאלה כאן ניתנת למענה בפועל ---
+function topStreetNames(k){
+  var m={},i;
+  for(i=0;i<TK.length;i++){ var t=TK[i]; if(t[C_ST]<0) continue; var nm=STREETS[t[C_ST]]; m[nm]=(m[nm]||0)+1; }
+  return Object.keys(m).sort(function(a,b){ return m[b]-m[a]; }).slice(0,k);
+}
+function buildBank(){
+  var deps=DEPS.slice().sort(function(a,b){ return (AGG.byDep[b]||0)-(AGG.byDep[a]||0); });
+  var subs=AGG.bySubjectTop.map(function(r){ return r[0]; });
+  var streets=topStreetNames(6);
+  return [
+   {t:'ספירות בסיסיות', q:['כמה פניות יש בסך הכל?','כמה חריגות SLA?','כמה פניות פתוחות?',
+      'כמה פניות נסגרו?','כמה פניות המשך יש?']},
+   {t:'לפי מחלקה', q:['פניות לפי מחלקה','חריגות לפי מחלקה','שיעור חריגה לפי מחלקה',
+      'פניות פתוחות לפי מחלקה','איזו מחלקה הכי בעייתית?','לאיזו מחלקה הכי מעט פניות?']
+      .concat(deps.slice(0,6).map(function(d){ return 'כמה פניות ב'+d+'?'; }))
+      .concat(deps.slice(0,4).map(function(d){ return 'כמה חריגות ב'+d+'?'; }))},
+   {t:'לפי נושא', q:['פניות לפי נושא','מה הנושא הכי נפוץ?','נושאים מובילים בתברואה']
+      .concat(subs.slice(0,8).map(function(x){ return 'כמה פניות על '+x+'?'; }))},
+   {t:'לפי רחוב', q:['אילו רחובות מובילים?','המקומות הכי גרועים בעיר','שיעור חריגה לפי רחוב',
+      'כמה פניות אין להן מיקום על המפה?']
+      .concat(streets.map(function(x){ return 'כמה פניות ברחוב '+x+'?'; }))},
+   {t:'לפי זמן', q:['פניות לפי חודש','כמה פניות ב-2025?','כמה פניות ב-2026?','פניות השנה',
+      'מה קרה ברבעון האחרון?','כמה פניות ב-12 החודשים האחרונים?','כמה פניות בינואר 2025?',
+      'חריגות לפי חודש','מגמה לאורך זמן']},
+   {t:'זמני טיפול', q:['מה חציון זמן הטיפול?','מה אחוזון 90 של זמן הטיפול?',
+      'כמה זמן לוקח טיפול בתברואה?','זמן טיפול חציוני בגינון','אילו פניות הכי ארוכות?']},
+   {t:'שילובים', q:['חריגות בתברואה ב-2026','פניות פתוחות באחזקה','חריגות בגינון השנה',
+      'פניות על אשפה ב-2025','פניות פתוחות ברחוב הערבה','נושאים מובילים בוטרינר',
+      'שיעור חריגה באחזקה']},
+   {t:'מצב סיפור — 7 התצוגות', q:['ספר לי את תמונת המצב','סקירה: מה שובר את המערכת?',
+      'ספר לי על החריגות','סקירה: איפה חם?','ספר לי על הנפח','סקירה: הזנב הארוך',
+      'ספר לי מה פתוח עכשיו']},
+   {t:'הגדרות והסברים', q:['מה זה חריגת SLA?','מה נחשב פנייה פתוחה?','איך מחושב יעד SLA?',
+      'במה מטפלת אחזקה?','במה מטפלת תברואה?','למה יש רחובות מקווקווים?',
+      'למה חלק מהפניות לא על המפה?','מה זה שפ"ע?','מה זה פניית המשך?','מה זה צנטרואיד?']}
+  ];
+}
+var BANK=buildBank();
+function showBank(){
+  var html='<b>מה אפשר לשאול אותי</b>\n<span class="hint">לחיצה על שאלה שולחת אותה.</span>'+
+    BANK.map(function(g){
+      return '<div class="bankgrp"><i>'+esc(g.t)+'</i>'+
+        g.q.map(function(x){ return '<button>'+esc(x)+'</button>'; }).join('')+'</div>';
+    }).join('');
+  bubble('bot bank',html);
+}
+var STARTERS=['כמה פניות יש בסך הכל?','כמה חריגות SLA?','כמה פניות פתוחות?','אילו רחובות מובילים?',
+              'חריגות לפי מחלקה','מה חציון זמן הטיפול?','מה זה חריגת SLA?'];
+document.getElementById('asstStarters').innerHTML=
+  STARTERS.map(function(s){ return '<button>'+esc(s)+'</button>'; }).join('')+
+  '<button class="more" data-more="1">❓ עוד '+BANK.reduce(function(a,g){return a+g.q.length;},0)+' שאלות…</button>';
+document.getElementById('asstStarters').onclick=function(e){
+  if(e.target.tagName!=='BUTTON') return;
+  if(e.target.dataset.more) showBank(); else ask(e.target.textContent);
+};
+// לחיצה על שאלה בתוך רשימת המאגר
+asstLog.addEventListener('click',function(e){
+  if(e.target.tagName==='BUTTON' && e.target.closest('.bankgrp')) ask(e.target.textContent);
+});
+
+function greet(){
+  bubble('bot','שלום, אני נחמן. אני עונה על שאלות על '+num(AGG.rows)+' הפניות שבלוח.\nהכול מחושב כאן מהנתונים המוטמעים — בלי רשת ובלי מודל.');
+  showBank();
+}
+// מודיע ל-CSS כמה רוחב הפאנל תופס, כדי שמגירת הגרפים תתקצר בדיוק לפיו
+function syncAsstWidth(){
+  document.body.style.setProperty('--asst-w', Math.round(asstPanel.getBoundingClientRect().width)+'px');
+}
+function openAsst(){
+  asstPanel.classList.add('show'); asstBtn.classList.add('on');
+  document.body.classList.add('asst-open');
+  document.getElementById('context').classList.remove('show');
+  syncAsstWidth();
+  if(!asstLog.children.length) greet();
+  asstQ.focus();
+}
+function closeAsst(){
+  asstPanel.classList.remove('show'); asstBtn.classList.remove('on');
+  document.body.classList.remove('asst-open');
+  refresh();
+}
+// גרירת הפינה (resize:both) משנה את הרוחב — מסנכרנים את המגירה איתו
+if(window.ResizeObserver) new ResizeObserver(function(){
+  if(asstPanel.classList.contains('show')) syncAsstWidth();
+}).observe(asstPanel);
+asstBtn.onclick=function(){ asstPanel.classList.contains('show')? closeAsst() : openAsst(); };
+document.getElementById('asstClose').onclick=closeAsst;
+document.getElementById('asstClear').onclick=function(){ asstLog.innerHTML=''; greet(); asstQ.focus(); };
+document.getElementById('asstWide').onclick=function(){
+  // resize:both משאיר width מפורש על הסגנון — מנקים אותו כדי שהמחלקה תשלוט
+  asstPanel.style.width=''; asstPanel.classList.toggle('wide');
+};
+asstSend.onclick=function(){ ask(asstQ.value); };
+// המקלדת תפוסה גלובלית (חצים / Esc / 1-7 למצב סיפור) — חייבים לעצור כאן
+asstQ.addEventListener('keydown',function(e){
+  e.stopPropagation();
+  if(e.key==='Enter') ask(asstQ.value);
+  else if(e.key==='Escape') closeAsst();
+});
+
 // ---------------- go ----------------
 buildCharts();
 syncRange();
 refresh();
 function fixMap(){ try{ map.invalidateSize({animate:false}); }catch(e){} }
-if(/[?&]debug/.test(location.search)){ window.__app={st:st,selectStreet:selectStreet,filtered:filtered,refresh:refresh,map:map,story:STORY,showStory:showStory,goOffline:goOffline}; }
+if(/[?&]debug/.test(location.search)){ window.__app={st:st,selectStreet:selectStreet,filtered:filtered,refresh:refresh,map:map,story:STORY,showStory:showStory,goOffline:goOffline,
+  ask:ask,runQuery:runQuery,parseHe:parseHe,wikiLookup:wikiLookup,measure:measure,blankSpec:blankSpec,wiki:WIKI}; }
+window.__BANK=BANK; // רשימת השאלות הנתמכות, לשימוש בבדיקות
 window.addEventListener('resize',function(){
   fixMap();
   Object.keys(charts).forEach(function(k){ try{charts[k].resize();}catch(e){} });
